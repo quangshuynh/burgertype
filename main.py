@@ -74,10 +74,6 @@ class TypingSpeedTester:
         self.test_running = True
     
     def update_progress(self):
-        """Update the word count progress indicator in real time.
-        
-        A word is counted as complete only after the user types it in full and then types a space.
-        """
         text = self.input_text.get("1.0", "end-1c")
         if text == "":
             finished_count = 0
