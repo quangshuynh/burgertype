@@ -172,7 +172,7 @@ class TypingSpeedTester:
 
         self.restart_button = tk.Button(self.main_frame, image=self.redo_icon, command=self.reset_test, bg=BG_COLOR, activebackground=BG_COLOR, bd=0, highlightthickness=0)
         self.restart_button.pack(pady=10)
-        CreateToolTip(self.restart_button, text="Restart test", position="above", arrow=True)
+        CreateToolTip(self.restart_button, text="Restart test", position="below", arrow=True)
         self.restart_button.bind("<Enter>", lambda e: self.restart_button.config(image=self.redo_icon_hover))
         self.restart_button.bind("<Leave>", lambda e: self.restart_button.config(image=self.redo_icon))
 
@@ -212,8 +212,11 @@ class TypingSpeedTester:
 
     def unhighlight_key(self, key):
         lbl = self.key_labels.get(key)
-        if lbl:
-            lbl.config(bg=KB_BG_COLOR)
+        if lbl and lbl.winfo_exists():
+            try:
+                lbl.config(bg=KB_BG_COLOR)
+            except tk.TclError:
+                pass 
 
 
     def on_key(self, event):
@@ -357,7 +360,7 @@ class TypingSpeedTester:
 
         self.restart_button = tk.Button(self.main_frame, image=self.redo_icon, command=self.reset_test, bg=BG_COLOR, activebackground=BG_COLOR, bd=0, highlightthickness=0)
         self.restart_button.pack(pady=10)
-        CreateToolTip(self.restart_button, text="Restart test", position="above", arrow=True)
+        CreateToolTip(self.restart_button, text="Restart test", position="below", arrow=True)
         self.restart_button.bind("<Enter>", lambda e: self.restart_button.config(image=self.redo_icon_hover))
         self.restart_button.bind("<Leave>", lambda e: self.restart_button.config(image=self.redo_icon))
 
