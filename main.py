@@ -58,9 +58,7 @@ class CreateToolTip:
         frame = tk.Frame(self.tw, bg="#000", borderwidth=1, relief="solid")
         frame.pack()
 
-        self.label_widget = tk.Label(frame, text=self.text, justify='left', 
-                                     background="#000", foreground="#fff", 
-                                     wraplength=self.wraplength, font=("Helvetica", 10))
+        self.label_widget = tk.Label(frame, text=self.text, justify='left', background="#000", foreground="#fff", wraplength=self.wraplength, font=("Helvetica", 10))
         self.label_widget.pack(padx=4, pady=(4, 2))
         
         arrow_height = 6
@@ -178,15 +176,13 @@ class TypingSpeedTester:
             row_frame = tk.Frame(self.keyboard_frame, bg=BG_COLOR)
             row_frame.pack(pady=2)
             for key in row_keys:
-                lbl = tk.Label(row_frame, text=key, bg=KB_BG_COLOR, fg=TXT_COLOR, width=3, height=1, 
-                               font=("Helvetica", 14), padx=5, pady=5)
+                lbl = tk.Label(row_frame, text=key, bg=KB_BG_COLOR, fg=TXT_COLOR, width=3, height=1, font=("Helvetica", 14), padx=5, pady=5)
                 lbl.pack(side="left", padx=2)
                 self.key_labels[key] = lbl
 
         space_frame = tk.Frame(self.keyboard_frame, bg=BG_COLOR)
         space_frame.pack(pady=2)
-        space_lbl = tk.Label(space_frame, text="space", bg=KB_BG_COLOR, fg=TXT_COLOR, width=10, height=1, 
-                             font=("Helvetica", 14), padx=5, pady=5)
+        space_lbl = tk.Label(space_frame, text="space", bg=KB_BG_COLOR, fg=TXT_COLOR, width=10, height=1, font=("Helvetica", 14), padx=5, pady=5)
         space_lbl.pack(side="left", padx=2)
         self.key_labels[" "] = space_lbl  
 
