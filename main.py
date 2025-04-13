@@ -8,12 +8,13 @@ import string
 
 WORDS_FILE = os.path.join(os.path.dirname(__file__), "assets", "words.txt")
 
-CORRECT_COLOR   = "#E2E2E3"
+CORRECT_COLOR = "#E2E2E3"
 INCORRECT_COLOR = "#FC5D7C"
-EXTRA_COLOR     = "#ECAC6A"
-BG_COLOR        = "#2C2E34"
-KB_BG_COLOR     = "#232429"
-TXT_COLOR       = "#E7C664"
+EXTRA_COLOR = "#ECAC6A"
+BG_COLOR = "#2C2E34"
+KB_BG_COLOR = "#232429"
+TXT_COLOR = "#E7C664"
+TXT2_COLOR = "#8ED05D"
 
 
 class CreateToolTip:
@@ -113,6 +114,7 @@ class TypingSpeedTester:
         style.configure("TFrame", background=BG_COLOR)
         style.configure("TLabel", background=BG_COLOR, foreground="#fff", font=("Helvetica", 14))
         style.configure("Title.TLabel", background=BG_COLOR, foreground=TXT_COLOR, font=("Helvetica", 18, "bold"))
+        style.configure("Progress.TLabel", background=BG_COLOR, foreground=TXT2_COLOR)
         style.configure("TButton", font=("Helvetica", 12))
 
         self.mode = "time"       
@@ -223,7 +225,7 @@ class TypingSpeedTester:
         self.title_label = ttk.Label(self.main_frame, text="Burger Type", style="Title.TLabel")
         self.title_label.pack(pady=(0, 20))
 
-        self.progress_label = ttk.Label(self.main_frame, text="Start typing to begin the test.")
+        self.progress_label = ttk.Label(self.main_frame, text="Start typing to begin the test!", style="Progress.TLabel")
         self.progress_label.pack(pady=10)
 
         self.load_random_words()
