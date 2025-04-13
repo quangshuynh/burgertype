@@ -16,10 +16,7 @@ A sleek and customizable **Typing Speed Tester** desktop application built with 
 - 💡 Tooltips and clean UI using `ttk` styling
 
 ---
-
-## 🖼️ Preview
-
-https://i.imgur.com/vHr6Aef.png
+![screenshot](https://i.imgur.com/vHr6Aef.png)
 
 ---
 
@@ -30,11 +27,11 @@ https://i.imgur.com/vHr6Aef.png
    cd typing-speed-tester
    ```
 2. Install the required packages:
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 3. Run the app
-```bash
-python main.py
-```
+   ```bash
+   python main.py
+   ```
 
