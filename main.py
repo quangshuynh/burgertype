@@ -1,6 +1,8 @@
-import tkinter as tk
+from PIL import Image, ImageTk
 from tkinter import ttk
+import tkinter as tk
 import time
+import os
 
 SAMPLE_TEXT = "The quick brown fox jumps over the lazy dog."
 
@@ -10,8 +12,6 @@ EXTRA_COLOR   = "#ECAC6A"
 BG_COLOR = "#2C2E34"
 KB_BG_COLOR = "#232429"
 TXT_COLOR = "#E7C664"
-
-
 
 class CreateToolTip:
     def __init__(self, widget, text='widget info', position="above", arrow=True):
@@ -132,6 +132,13 @@ class TypingSpeedTester:
             'm': 'm', 'comma': ',', 'period': '.', 'slash': '/',
             'space': ' '
         }
+
+        redo_img_path = os.path.join(os.path.dirname(__file__), "assets", "redo-alt-solid.png")
+        redo_img_hover_path = os.path.join(os.path.dirname(__file__), "assets", "redo-alt-solid-hover.png")
+        redo_img = Image.open(redo_img_path).convert("RGBA").resize((25, 25), Image.Resampling.LANCZOS)
+        redo_img_hover = Image.open(redo_img_hover_path).convert("RGBA").resize((26, 26), Image.Resampling.LANCZOS)
+        self.redo_icon = ImageTk.PhotoImage(redo_img)
+        self.redo_icon_hover = ImageTk.PhotoImage(redo_img_hover)
         
         self.main_frame = ttk.Frame(root, padding="20")
         self.main_frame.pack(expand=True, fill="both")
@@ -163,8 +170,11 @@ class TypingSpeedTester:
 
         self.build_keyboard()
 
-        self.restart_button = ttk.Button(self.main_frame, text="Restart", command=self.reset_test)
+        self.restart_button = tk.Button(self.main_frame, image=self.redo_icon, command=self.reset_test, bg=BG_COLOR, activebackground=BG_COLOR, bd=0, highlightthickness=0)
         self.restart_button.pack(pady=10)
+        CreateToolTip(self.restart_button, text="Restart test", position="above", arrow=True)
+        self.restart_button.bind("<Enter>", lambda e: self.restart_button.config(image=self.redo_icon_hover))
+        self.restart_button.bind("<Leave>", lambda e: self.restart_button.config(image=self.redo_icon))
 
         self.update_display()
 
@@ -345,8 +355,11 @@ class TypingSpeedTester:
         accuracy_number_label.pack(side="left")
         CreateToolTip(accuracy_number_label, text=f"{accuracy:.2f}%\n{correct_chars} correct\n{incorrect_chars} incorrect", position="above", arrow=True)
 
-        self.restart_button = ttk.Button(self.main_frame, text="Restart", command=self.reset_test)
+        self.restart_button = tk.Button(self.main_frame, image=self.redo_icon, command=self.reset_test, bg=BG_COLOR, activebackground=BG_COLOR, bd=0, highlightthickness=0)
         self.restart_button.pack(pady=10)
+        CreateToolTip(self.restart_button, text="Restart test", position="above", arrow=True)
+        self.restart_button.bind("<Enter>", lambda e: self.restart_button.config(image=self.redo_icon_hover))
+        self.restart_button.bind("<Leave>", lambda e: self.restart_button.config(image=self.redo_icon))
 
 
     def reset_test(self):
