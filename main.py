@@ -4,9 +4,9 @@ import time
 
 SAMPLE_TEXT = "The quick brown fox jumps over the lazy dog."
 
-CORRECT_COLOR = "#FFFFFF"  
-INCORRECT_COLOR = "#FF0000"
-EXTRA_COLOR   = "#FFA500"   
+CORRECT_COLOR = "#E2E2E3"  
+INCORRECT_COLOR = "#FC5D7C"
+EXTRA_COLOR   = "#ECAC6A"   
 BG_COLOR = "#2C2E34"
 KB_BG_COLOR = "#232429"
 TXT_COLOR = "#E7C664"
