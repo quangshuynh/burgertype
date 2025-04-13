@@ -217,13 +217,16 @@ class TypingSpeedTester:
         else:
             self.tab_pressed_flag = False
 
+        if event.keysym == "space" and not self.test_running:
+            return
+
         ks = event.keysym.lower()
         if ks in self.keysym_map:
             real_char = self.keysym_map[ks]
             self.highlight_key(real_char)
 
         if not self.test_running and not self.finished:
-            if event.char.isprintable() or event.keysym == "space":
+            if event.char and event.char.isprintable() and not event.char.isspace():
                 self.start_test()
 
         if event.keysym == "BackSpace":
@@ -232,12 +235,18 @@ class TypingSpeedTester:
             self.user_input += event.char
 
         self.update_display()
-        self.update_progress()
+        if self.test_running:
+            self.update_progress()
 
         typed_words = self.user_input.split(" ")
-        if len(typed_words) > len(self.sample_words) or (
-           len(typed_words) == len(self.sample_words) and len(typed_words[-1]) >= len(self.sample_words[-1])):
+        filtered_words = [w for w in typed_words if w.strip() != ""]
+        if len(filtered_words) > len(self.sample_words):
             self.finish_test()
+        elif len(filtered_words) == len(self.sample_words):
+            last_expected = self.sample_words[-1]
+            last_typed = typed_words[-1] 
+            if len(last_typed.strip()) >= len(last_expected):
+                self.finish_test()
 
         self.root.after(100, lambda: self.unhighlight_key(self.keysym_map.get(ks, "")))
 
