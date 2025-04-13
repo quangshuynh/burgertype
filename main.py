@@ -144,8 +144,8 @@ class TypingSpeedTester:
         self.progress_label = ttk.Label(self.main_frame, text="Start typing to begin the test.")
         self.progress_label.pack(pady=10)
 
-        self.display = tk.Text(self.main_frame, height=5, wrap="word", font=("Helvetica", 14), bg="#222", bd=0, relief="flat", highlightthickness=0)
-        self.display.pack(fill="x", pady=10)
+        self.display = tk.Text(self.main_frame, height=5, wrap="word", font=("Helvetica", 14), bg=BG_COLOR, bd=0, relief="flat", highlightthickness=0)
+        self.display.pack(fill="x", pady=50)
         self.display.tag_config("correct", foreground=CORRECT_COLOR)
         self.display.tag_config("incorrect", foreground=INCORRECT_COLOR)
         self.display.tag_config("not_typed", foreground=TXT_COLOR)
