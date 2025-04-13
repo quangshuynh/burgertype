@@ -4,6 +4,10 @@ import time
 
 SAMPLE_TEXT = "The quick brown fox jumps over the lazy dog."
 
+text_color = "#E7C664"
+background_color = "#2C2E34"
+keyboard_bg_color= "#232429"
+
 class CreateToolTip:
     def __init__(self, widget, text='widget info'):
         self.widget = widget
@@ -57,9 +61,9 @@ class TypingSpeedTester:
 
         style = ttk.Style()
         style.theme_use("clam")
-        style.configure("TFrame", background="#2f2f2f")
-        style.configure("TLabel", background="#2f2f2f", foreground="#fff", font=("Helvetica", 14))
-        style.configure("Title.TLabel", background="#2f2f2f", foreground="#f1c40f", font=("Helvetica", 18, "bold"))
+        style.configure("TFrame", background=background_color)
+        style.configure("TLabel", background=background_color, foreground="#fff", font=("Helvetica", 14))
+        style.configure("Title.TLabel", background=background_color, foreground=text_color, font=("Helvetica", 18, "bold"))
         style.configure("TButton", font=("Helvetica", 12))
         
         self.start_time = None
@@ -127,18 +131,18 @@ class TypingSpeedTester:
         ]
         
         for row_keys in keyboard_rows:
-            row_frame = tk.Frame(self.keyboard_frame, bg="#2f2f2f")
+            row_frame = tk.Frame(self.keyboard_frame, bg=background_color)
             row_frame.pack(pady=2)
 
             for key in row_keys:
-                lbl = tk.Label(row_frame, text=key, bg="#333", fg="#f1c40f", width=3, height=1, font=("Helvetica", 14), padx=5, pady=5)
+                lbl = tk.Label(row_frame, text=key, bg=keyboard_bg_color, fg=text_color, width=3, height=1, font=("Helvetica", 14), padx=5, pady=5)
                 lbl.pack(side="left", padx=2)
                 self.key_labels[key] = lbl
 
-        space_frame = tk.Frame(self.keyboard_frame, bg="#2f2f2f")
+        space_frame = tk.Frame(self.keyboard_frame, bg=background_color)
         space_frame.pack(pady=2)
 
-        space_lbl = tk.Label(space_frame, text="space", bg="#333", fg="#f1c40f", width=10, height=1, font=("Helvetica", 14), padx=5, pady=5)
+        space_lbl = tk.Label(space_frame, text="space", bg=keyboard_bg_color, fg=text_color, width=10, height=1, font=("Helvetica", 14), padx=5, pady=5)
         space_lbl.pack(side="left", padx=2)
         self.key_labels[" "] = space_lbl  
 
