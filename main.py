@@ -342,8 +342,14 @@ class TypingSpeedTester:
 
         if self.test_running and self.mode == "words":
             typed_words = self.user_input.split()
-            if len(typed_words) >= len(self.sample_words):
+            if len(typed_words) > len(self.sample_words):
                 self.finish_test()
+            elif len(typed_words) == len(self.sample_words):
+                # Only finish if the last word exactly matches the expected last word
+                if typed_words[-1] == self.sample_words[-1]:
+                    self.finish_test()
+
+
 
         self.root.after(100, lambda: self.unhighlight_key(self.keysym_map.get(ks, "")))
 
