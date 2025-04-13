@@ -12,11 +12,13 @@ KB_BG_COLOR = "#232429"
 TXT_COLOR = "#E7C664"
 
 class CreateToolTip:
-    def __init__(self, widget, text='widget info'):
+    def __init__(self, widget, text='widget info', position="above", arrow=True):
         self.widget = widget
         self.text = text
-        self.waittime = 500  
-        self.wraplength = 180  
+        self.waittime = 500     
+        self.wraplength = 180   
+        self.position = position
+        self.has_arrow = arrow
         self.id = None
         self.tw = None
         self.widget.bind("<Enter>", self.enter)
@@ -40,14 +42,50 @@ class CreateToolTip:
         self.id = None
 
     def showtip(self, event=None):
-        x, y, cx, cy = self.widget.bbox("insert") or (0, 0, 0, 0)
-        x += self.widget.winfo_rootx() + 25
-        y += self.widget.winfo_rooty() + cy + 25
-        self.tw = tk.Toplevel(self.widget)
-        self.tw.wm_overrideredirect(True)
-        self.tw.wm_geometry(f"+{x}+{y}")
-        label = tk.Label(self.tw, text=self.text, justify='left', background="#ffffe0", relief='solid', borderwidth=1, wraplength=self.wraplength, font=("Helvetica", 10))
-        label.pack(ipadx=1)
+        if self.tw or not self.text:
+            return
+
+        widget = self.widget
+        widget.update_idletasks()
+        wx = widget.winfo_rootx()
+        wy = widget.winfo_rooty()
+        ww = widget.winfo_width()
+        wh = widget.winfo_height()
+
+        self.tw = tk.Toplevel(widget)
+        self.tw.wm_overrideredirect(True)  
+
+        frame = tk.Frame(self.tw, bg="#000", borderwidth=1, relief="solid")
+        frame.pack()
+
+        self.label_widget = tk.Label(frame, text=self.text, justify='left', 
+                                     background="#000", foreground="#fff", 
+                                     wraplength=self.wraplength, font=("Helvetica", 10))
+        self.label_widget.pack(padx=4, pady=(4, 2))
+        
+        arrow_height = 6
+        if self.has_arrow:
+            if self.position == "above":
+                canvas = tk.Canvas(frame, bg="#000", width=20, height=arrow_height, highlightthickness=0)
+                canvas.pack()
+                canvas.create_polygon(10 - 5, 0, 10 + 5, 0, 10, arrow_height, fill="#000", outline="#000")
+            elif self.position == "below":
+                canvas = tk.Canvas(frame, bg="#000", width=20, height=arrow_height, highlightthickness=0)
+                canvas.pack(side="top")
+                canvas.create_polygon(10 - 5, arrow_height, 10 + 5, arrow_height, 10, 0, fill="#000", outline="#000")
+        
+        self.tw.update_idletasks()
+        tip_width = self.tw.winfo_width()
+        tip_height = self.tw.winfo_height()
+
+        widget_center = wx + ww / 2
+        if self.position == "above":
+            tip_x = int(widget_center - tip_width / 2)
+            tip_y = int(wy - tip_height - 5)  
+        else:
+            tip_x = int(widget_center - tip_width / 2)
+            tip_y = int(wy + wh + 5)
+        self.tw.wm_geometry(f"+{tip_x}+{tip_y}")
 
     def hidetip(self):
         if self.tw:
@@ -105,8 +143,10 @@ class TypingSpeedTester:
         self.title_label = ttk.Label(self.main_frame, text="Burger Type", style="Title.TLabel")
         self.title_label.pack(pady=(0, 20))
 
-        self.display = tk.Text(self.main_frame, height=5, wrap="word", font=("Helvetica", 14), 
-                               bg="#222", bd=0, relief="flat", highlightthickness=0)
+        self.progress_label = ttk.Label(self.main_frame, text="Start typing to begin the test.")
+        self.progress_label.pack(pady=10)
+
+        self.display = tk.Text(self.main_frame, height=5, wrap="word", font=("Helvetica", 14), bg="#222", bd=0, relief="flat", highlightthickness=0)
         self.display.pack(fill="x", pady=10)
         self.display.tag_config("correct", foreground=CORRECT_COLOR)
         self.display.tag_config("incorrect", foreground=INCORRECT_COLOR)
@@ -114,8 +154,7 @@ class TypingSpeedTester:
         self.display.tag_config("extra", foreground=EXTRA_COLOR)
         self.display.config(state="disabled")
 
-        self.progress_label = ttk.Label(self.main_frame, text="Start typing to begin the test.")
-        self.progress_label.pack(pady=10)
+        
 
         self.build_keyboard()
 
@@ -224,7 +263,6 @@ class TypingSpeedTester:
         self.display.config(state="disabled")
 
     def update_progress(self):
-        """Update the progress label to show words attempted."""
         typed_words = self.user_input.split(" ")
         finished_count = 0
         for i, word in enumerate(typed_words):
@@ -263,20 +301,29 @@ class TypingSpeedTester:
         time_label = ttk.Label(self.main_frame, text=f"Time: {elapsed:.1f} sec")
         time_label.pack(pady=10)
 
-        raw_wpm_round = round(raw_wpm)
-        adjusted_wpm_round = round(adjusted_wpm)
-        raw_label = ttk.Label(self.main_frame, text=f"Raw WPM: {raw_wpm_round}")
-        raw_label.pack(pady=10)
-        CreateToolTip(raw_label, text=f"{raw_wpm:.2f} wpm")
+        raw_frame = ttk.Frame(self.main_frame)
+        raw_frame.pack(pady=10)
+        raw_text_label = ttk.Label(raw_frame, text="Raw WPM: ", font=("Helvetica", 14))
+        raw_text_label.pack(side="left")
+        raw_number_label = ttk.Label(raw_frame, text=f"{round(raw_wpm)}", font=("Helvetica", 14))
+        raw_number_label.pack(side="left")
+        CreateToolTip(raw_number_label, text=f"{raw_wpm:.2f} wpm", position="above", arrow=True)
 
-        adjusted_label = ttk.Label(self.main_frame, text=f"Adjusted WPM: {adjusted_wpm_round}")
-        adjusted_label.pack(pady=10)
-        CreateToolTip(adjusted_label, text=f"{adjusted_wpm:.2f} wpm")
+        adjusted_frame = ttk.Frame(self.main_frame)
+        adjusted_frame.pack(pady=10)
+        adjusted_text_label = ttk.Label(adjusted_frame, text="Adjusted WPM: ", font=("Helvetica", 14))
+        adjusted_text_label.pack(side="left")
+        adjusted_number_label = ttk.Label(adjusted_frame, text=f"{round(adjusted_wpm)}", font=("Helvetica", 14))
+        adjusted_number_label.pack(side="left")
+        CreateToolTip(adjusted_number_label, text=f"{adjusted_wpm:.2f} wpm", position="above", arrow=True)
 
-        accuracy_round = round(accuracy)
-        accuracy_label = ttk.Label(self.main_frame, text=f"Accuracy: {accuracy_round}%")
-        accuracy_label.pack(pady=10)
-        CreateToolTip(accuracy_label, text=f"{accuracy:.2f}%\n{correct_chars} correct\n{incorrect_chars} incorrect")
+        accuracy_frame = ttk.Frame(self.main_frame)
+        accuracy_frame.pack(pady=10)
+        accuracy_text_label = ttk.Label(accuracy_frame, text="Accuracy: ", font=("Helvetica", 14))
+        accuracy_text_label.pack(side="left")
+        accuracy_number_label = ttk.Label(accuracy_frame, text=f"{round(accuracy)}%", font=("Helvetica", 14))
+        accuracy_number_label.pack(side="left")
+        CreateToolTip(accuracy_number_label, text=f"{accuracy:.2f}%\n{correct_chars} correct\n{incorrect_chars} incorrect", position="above", arrow=True)
 
         self.restart_button = ttk.Button(self.main_frame, text="Restart", command=self.reset_test)
         self.restart_button.pack(pady=10)
