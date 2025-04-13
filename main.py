@@ -267,14 +267,16 @@ class TypingSpeedTester:
         adjusted_wpm_round = round(adjusted_wpm)
         raw_label = ttk.Label(self.main_frame, text=f"Raw WPM: {raw_wpm_round}")
         raw_label.pack(pady=10)
-        CreateToolTip(raw_label, text=f"Raw WPM (actual): {raw_wpm:.1f}")
+        CreateToolTip(raw_label, text=f"{raw_wpm:.2f} wpm")
 
         adjusted_label = ttk.Label(self.main_frame, text=f"Adjusted WPM: {adjusted_wpm_round}")
         adjusted_label.pack(pady=10)
-        CreateToolTip(adjusted_label, text=f"Adjusted WPM (actual): {adjusted_wpm:.1f}")
+        CreateToolTip(adjusted_label, text=f"{adjusted_wpm:.2f} wpm")
 
-        accuracy_label = ttk.Label(self.main_frame, text=f"Accuracy: {accuracy:.1f}% (Correct: {correct_chars}, Incorrect: {incorrect_chars})")
+        accuracy_round = round(accuracy)
+        accuracy_label = ttk.Label(self.main_frame, text=f"Accuracy: {accuracy_round}%")
         accuracy_label.pack(pady=10)
+        CreateToolTip(accuracy_label, text=f"{accuracy:.2f}%\n{correct_chars} correct\n{incorrect_chars} incorrect")
 
         self.restart_button = ttk.Button(self.main_frame, text="Restart", command=self.reset_test)
         self.restart_button.pack(pady=10)
