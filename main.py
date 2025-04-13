@@ -11,6 +11,8 @@ BG_COLOR = "#2C2E34"
 KB_BG_COLOR = "#232429"
 TXT_COLOR = "#E7C664"
 
+
+
 class CreateToolTip:
     def __init__(self, widget, text='widget info', position="above", arrow=True):
         self.widget = widget
@@ -25,21 +27,26 @@ class CreateToolTip:
         self.widget.bind("<Leave>", self.leave)
         self.widget.bind("<ButtonPress>", self.leave)
 
+
     def enter(self, event=None):
         self.schedule()
+
 
     def leave(self, event=None):
         self.unschedule()
         self.hidetip()
 
+
     def schedule(self):
         self.unschedule()
         self.id = self.widget.after(self.waittime, self.showtip)
+
 
     def unschedule(self):
         if self.id:
             self.widget.after_cancel(self.id)
         self.id = None
+
 
     def showtip(self, event=None):
         if self.tw or not self.text:
@@ -90,6 +97,7 @@ class CreateToolTip:
             self.tw.destroy()
         self.tw = None
 
+
 class TypingSpeedTester:
     def __init__(self, root):
         self.root = root
@@ -134,6 +142,7 @@ class TypingSpeedTester:
 
         self.root.bind("<Key>", self.on_key)
 
+
     def build_test_page(self):
         for widget in self.main_frame.winfo_children():
             widget.destroy()
@@ -145,14 +154,12 @@ class TypingSpeedTester:
         self.progress_label.pack(pady=10)
 
         self.display = tk.Text(self.main_frame, height=5, wrap="word", font=("Helvetica", 14), bg=BG_COLOR, bd=0, relief="flat", highlightthickness=0)
-        self.display.pack(fill="x", pady=50)
+        self.display.pack(fill="x", pady=10)
         self.display.tag_config("correct", foreground=CORRECT_COLOR)
         self.display.tag_config("incorrect", foreground=INCORRECT_COLOR)
         self.display.tag_config("not_typed", foreground=TXT_COLOR)
         self.display.tag_config("extra", foreground=EXTRA_COLOR)
         self.display.config(state="disabled")
-
-        
 
         self.build_keyboard()
 
@@ -160,6 +167,7 @@ class TypingSpeedTester:
         self.restart_button.pack(pady=10)
 
         self.update_display()
+
 
     def build_keyboard(self):
         self.key_labels = {} 
@@ -191,10 +199,12 @@ class TypingSpeedTester:
         if lbl:
             lbl.config(bg="#555")
     
+
     def unhighlight_key(self, key):
         lbl = self.key_labels.get(key)
         if lbl:
             lbl.config(bg=KB_BG_COLOR)
+
 
     def on_key(self, event):
         if event.keysym == "Tab":
@@ -231,6 +241,7 @@ class TypingSpeedTester:
 
         self.root.after(100, lambda: self.unhighlight_key(self.keysym_map.get(ks, "")))
 
+
     def update_display(self):
         self.display.config(state="normal")
         self.display.delete("1.0", tk.END)
@@ -258,6 +269,7 @@ class TypingSpeedTester:
 
         self.display.config(state="disabled")
 
+
     def update_progress(self):
         typed_words = self.user_input.split(" ")
         finished_count = 0
@@ -266,9 +278,11 @@ class TypingSpeedTester:
                 finished_count += 1
         self.progress_label.config(text=f"Words: {finished_count}/{len(self.sample_words)}")
 
+
     def start_test(self):
         self.start_time = time.time()
         self.test_running = True
+
 
     def finish_test(self):
         if self.finished: 
@@ -286,6 +300,7 @@ class TypingSpeedTester:
         adjusted_wpm = raw_wpm * (accuracy / 100)
 
         self.show_result_page(elapsed, raw_wpm, adjusted_wpm, accuracy, correct_chars, incorrect_chars)
+
 
     def show_result_page(self, elapsed, raw_wpm, adjusted_wpm, accuracy, correct_chars, incorrect_chars):
         for widget in self.main_frame.winfo_children():
@@ -324,6 +339,7 @@ class TypingSpeedTester:
         self.restart_button = ttk.Button(self.main_frame, text="Restart", command=self.reset_test)
         self.restart_button.pack(pady=10)
 
+
     def reset_test(self):
         self.test_running = False
         self.finished = False
@@ -332,6 +348,7 @@ class TypingSpeedTester:
         for widget in self.main_frame.winfo_children():
             widget.destroy()
         self.build_test_page()
+
 
 if __name__ == "__main__":
     root = tk.Tk()
