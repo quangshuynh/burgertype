@@ -4,9 +4,12 @@ import time
 
 SAMPLE_TEXT = "The quick brown fox jumps over the lazy dog."
 
-text_color = "#E7C664"
-background_color = "#2C2E34"
-keyboard_bg_color= "#232429"
+CORRECT_COLOR = "#FFFFFF"  
+INCORRECT_COLOR = "#FF0000"
+EXTRA_COLOR   = "#FFA500"   
+BG_COLOR = "#2C2E34"
+KB_BG_COLOR = "#232429"
+TXT_COLOR = "#E7C664"
 
 class CreateToolTip:
     def __init__(self, widget, text='widget info'):
@@ -55,15 +58,15 @@ class TypingSpeedTester:
     def __init__(self, root):
         self.root = root
         self.root.title("Typing Speed Tester")
-        self.root.geometry("700x550")  
+        self.root.geometry("700x550")
         self.root.resizable(False, False)
-        self.root.config(bg="#464646")  
+        self.root.config(bg="#464646")
 
         style = ttk.Style()
         style.theme_use("clam")
-        style.configure("TFrame", background=background_color)
-        style.configure("TLabel", background=background_color, foreground="#fff", font=("Helvetica", 14))
-        style.configure("Title.TLabel", background=background_color, foreground=text_color, font=("Helvetica", 18, "bold"))
+        style.configure("TFrame", background=BG_COLOR)
+        style.configure("TLabel", background=BG_COLOR, foreground="#fff", font=("Helvetica", 14))
+        style.configure("Title.TLabel", background=BG_COLOR, foreground=TXT_COLOR, font=("Helvetica", 18, "bold"))
         style.configure("TButton", font=("Helvetica", 12))
         
         self.start_time = None
@@ -71,26 +74,29 @@ class TypingSpeedTester:
         self.finished = False
         self.tab_pressed_flag = False
         self.sample_words = SAMPLE_TEXT.split()
+        
+        self.user_input = ""
 
         self.keysym_map = {
             'q': 'q', 'w': 'w', 'e': 'e', 'r': 'r', 't': 't', 'y': 'y', 
             'u': 'u', 'i': 'i', 'o': 'o', 'p': 'p',
             'bracketleft': '[', 'bracketright': ']',
-
             'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'g', 'h': 'h', 
             'j': 'j', 'k': 'k', 'l': 'l',
             'semicolon': ';', 'apostrophe': "'",
-
             'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': 'b', 'n': 'n', 
             'm': 'm', 'comma': ',', 'period': '.', 'slash': '/',
-
-            'space': ' ', 
+            'space': ' '
         }
-
+        
         self.main_frame = ttk.Frame(root, padding="20")
         self.main_frame.pack(expand=True, fill="both")
 
         self.build_test_page()
+
+        self.root.focus_set()
+
+        self.root.bind("<Key>", self.on_key)
 
     def build_test_page(self):
         for widget in self.main_frame.winfo_children():
@@ -99,31 +105,30 @@ class TypingSpeedTester:
         self.title_label = ttk.Label(self.main_frame, text="Burger Type", style="Title.TLabel")
         self.title_label.pack(pady=(0, 20))
 
-        self.sample_label = ttk.Label(self.main_frame, text=SAMPLE_TEXT, wraplength=650, justify="center")
-        self.sample_label.pack(pady=10)
+        self.display = tk.Text(self.main_frame, height=5, wrap="word", font=("Helvetica", 14), 
+                               bg="#222", bd=0, relief="flat", highlightthickness=0)
+        self.display.pack(fill="x", pady=10)
+        self.display.tag_config("correct", foreground=CORRECT_COLOR)
+        self.display.tag_config("incorrect", foreground=INCORRECT_COLOR)
+        self.display.tag_config("not_typed", foreground=TXT_COLOR)
+        self.display.tag_config("extra", foreground=EXTRA_COLOR)
+        self.display.config(state="disabled")
 
         self.progress_label = ttk.Label(self.main_frame, text="Start typing to begin the test.")
         self.progress_label.pack(pady=10)
-
-        self.input_text = tk.Text(self.main_frame, height=5, wrap="word", font=("Helvetica", 14), bg="#222", fg="#fff", insertbackground="#fff")
-        self.input_text.pack(fill="x", pady=10)
-        self.input_text.focus_set()
-
-        self.keyboard_frame = ttk.Frame(self.main_frame)
-        self.keyboard_frame.pack(pady=10)
 
         self.build_keyboard()
 
         self.restart_button = ttk.Button(self.main_frame, text="Restart", command=self.reset_test)
         self.restart_button.pack(pady=10)
 
-        self.input_text.bind("<KeyRelease>", self.on_key_release)
-        self.root.bind_all("<KeyPress>", self.on_key_press)
-        self.root.bind_all("<KeyRelease>", self.on_key_release)
+        self.update_display()
 
     def build_keyboard(self):
         self.key_labels = {} 
-
+        self.keyboard_frame = ttk.Frame(self.main_frame)
+        self.keyboard_frame.pack(pady=10)
+        
         keyboard_rows = [
             ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]"],
             ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'"],
@@ -131,37 +136,39 @@ class TypingSpeedTester:
         ]
         
         for row_keys in keyboard_rows:
-            row_frame = tk.Frame(self.keyboard_frame, bg=background_color)
+            row_frame = tk.Frame(self.keyboard_frame, bg=BG_COLOR)
             row_frame.pack(pady=2)
-
             for key in row_keys:
-                lbl = tk.Label(row_frame, text=key, bg=keyboard_bg_color, fg=text_color, width=3, height=1, font=("Helvetica", 14), padx=5, pady=5)
+                lbl = tk.Label(row_frame, text=key, bg=KB_BG_COLOR, fg=TXT_COLOR, width=3, height=1, 
+                               font=("Helvetica", 14), padx=5, pady=5)
                 lbl.pack(side="left", padx=2)
                 self.key_labels[key] = lbl
 
-        space_frame = tk.Frame(self.keyboard_frame, bg=background_color)
+        space_frame = tk.Frame(self.keyboard_frame, bg=BG_COLOR)
         space_frame.pack(pady=2)
-
-        space_lbl = tk.Label(space_frame, text="space", bg=keyboard_bg_color, fg=text_color, width=10, height=1, font=("Helvetica", 14), padx=5, pady=5)
+        space_lbl = tk.Label(space_frame, text="space", bg=KB_BG_COLOR, fg=TXT_COLOR, width=10, height=1, 
+                             font=("Helvetica", 14), padx=5, pady=5)
         space_lbl.pack(side="left", padx=2)
         self.key_labels[" "] = space_lbl  
 
     def highlight_key(self, key):
         lbl = self.key_labels.get(key)
         if lbl:
-            lbl.config(bg="#555")  
-
+            lbl.config(bg="#555")
+    
     def unhighlight_key(self, key):
         lbl = self.key_labels.get(key)
         if lbl:
-            lbl.config(bg="#333")
+            lbl.config(bg=KB_BG_COLOR)
 
-    def on_key_press(self, event):
+    def on_key(self, event):
         if event.keysym == "Tab":
             self.tab_pressed_flag = True
+            return
         elif event.keysym == "Return" and self.tab_pressed_flag:
             self.reset_test()
             self.tab_pressed_flag = False
+            return
         else:
             self.tab_pressed_flag = False
 
@@ -170,52 +177,78 @@ class TypingSpeedTester:
             real_char = self.keysym_map[ks]
             self.highlight_key(real_char)
 
-    def on_key_release(self, event):
         if not self.test_running and not self.finished:
-            content = self.input_text.get("1.0", "end-1c")
-            if content.strip():
+            if event.char.isprintable() or event.keysym == "space":
                 self.start_test()
 
-        if self.test_running and not self.finished:
-            self.update_progress()
-            content = self.input_text.get("1.0", "end-1c")
-            if len(content) >= len(SAMPLE_TEXT):
-                self.finish_test()
+        if event.keysym == "BackSpace":
+            self.user_input = self.user_input[:-1]
+        elif event.char and event.char.isprintable():
+            self.user_input += event.char
 
-        ks = event.keysym.lower()
-        if ks in self.keysym_map:
-            real_char = self.keysym_map[ks]
-            self.unhighlight_key(real_char)
+        self.update_display()
+        self.update_progress()
+
+        typed_words = self.user_input.split(" ")
+        if len(typed_words) > len(self.sample_words) or (
+           len(typed_words) == len(self.sample_words) and len(typed_words[-1]) >= len(self.sample_words[-1])):
+            self.finish_test()
+
+        self.root.after(100, lambda: self.unhighlight_key(self.keysym_map.get(ks, "")))
+
+    def update_display(self):
+        self.display.config(state="normal")
+        self.display.delete("1.0", tk.END)
+
+        typed_words = self.user_input.split(" ")
+
+        for i, expected_word in enumerate(self.sample_words):
+            typed_word = typed_words[i] if i < len(typed_words) else ""
+            for j, char in enumerate(expected_word):
+                if j < len(typed_word):
+                    if typed_word[j] == char:
+                        self.display.insert(tk.END, char, "correct")
+                    else:
+                        self.display.insert(tk.END, char, "incorrect")
+                else:
+                    self.display.insert(tk.END, char, "not_typed")
+            if len(typed_word) > len(expected_word):
+                extra = typed_word[len(expected_word):]
+                self.display.insert(tk.END, extra, "extra")
+            if i < len(self.sample_words) - 1:
+                if i < len(typed_words) - 1:
+                    self.display.insert(tk.END, " ", "correct")
+                else:
+                    self.display.insert(tk.END, " ", "not_typed")
+
+        self.display.config(state="disabled")
+
+    def update_progress(self):
+        """Update the progress label to show words attempted."""
+        typed_words = self.user_input.split(" ")
+        finished_count = 0
+        for i, word in enumerate(typed_words):
+            if i < len(self.sample_words) and len(word) >= len(self.sample_words[i]):
+                finished_count += 1
+        self.progress_label.config(text=f"Words: {finished_count}/{len(self.sample_words)}")
 
     def start_test(self):
         self.start_time = time.time()
         self.test_running = True
 
-    def update_progress(self):
-        text = self.input_text.get("1.0", "end-1c")
-        if not text:
-            finished_count = 0
-        else:
-            if text.endswith(" "):
-                finished_count = len(text.split())
-            else:
-                words = text.split()
-                finished_count = max(len(words) - 1, 0)
-        self.progress_label.config(text=f"Words: {finished_count}/{len(self.sample_words)}")
-
     def finish_test(self):
+        if self.finished: 
+            return
         self.finished = True
         self.test_running = False
         end_time = time.time()
-        elapsed = end_time - self.start_time
+        elapsed = end_time - self.start_time if self.start_time else 0
 
-        content = self.input_text.get("1.0", "end-1c")
-        typed_text = content[:len(SAMPLE_TEXT)]
-
-        raw_wpm = (len(SAMPLE_TEXT) / 5) / (elapsed / 60) if elapsed > 0 else 0
-        correct_chars = sum(1 for i in range(len(SAMPLE_TEXT)) if typed_text[i] == SAMPLE_TEXT[i])
+        typed_text = self.user_input[:len(SAMPLE_TEXT)]
+        correct_chars = sum(1 for i in range(len(SAMPLE_TEXT)) if i < len(typed_text) and typed_text[i] == SAMPLE_TEXT[i])
         incorrect_chars = len(SAMPLE_TEXT) - correct_chars
         accuracy = (correct_chars / len(SAMPLE_TEXT)) * 100
+        raw_wpm = (len(SAMPLE_TEXT) / 5) / (elapsed / 60) if elapsed > 0 else 0
         adjusted_wpm = raw_wpm * (accuracy / 100)
 
         self.show_result_page(elapsed, raw_wpm, adjusted_wpm, accuracy, correct_chars, incorrect_chars)
@@ -232,7 +265,6 @@ class TypingSpeedTester:
 
         raw_wpm_round = round(raw_wpm)
         adjusted_wpm_round = round(adjusted_wpm)
-
         raw_label = ttk.Label(self.main_frame, text=f"Raw WPM: {raw_wpm_round}")
         raw_label.pack(pady=10)
         CreateToolTip(raw_label, text=f"Raw WPM (actual): {raw_wpm:.1f}")
@@ -241,10 +273,7 @@ class TypingSpeedTester:
         adjusted_label.pack(pady=10)
         CreateToolTip(adjusted_label, text=f"Adjusted WPM (actual): {adjusted_wpm:.1f}")
 
-        accuracy_label = ttk.Label(
-            self.main_frame,
-            text=f"Accuracy: {accuracy:.1f}% (Correct: {correct_chars}, Incorrect: {incorrect_chars})"
-        )
+        accuracy_label = ttk.Label(self.main_frame, text=f"Accuracy: {accuracy:.1f}% (Correct: {correct_chars}, Incorrect: {incorrect_chars})")
         accuracy_label.pack(pady=10)
 
         self.restart_button = ttk.Button(self.main_frame, text="Restart", command=self.reset_test)
@@ -254,10 +283,10 @@ class TypingSpeedTester:
         self.test_running = False
         self.finished = False
         self.start_time = None
+        self.user_input = ""
         for widget in self.main_frame.winfo_children():
             widget.destroy()
         self.build_test_page()
-
 
 if __name__ == "__main__":
     root = tk.Tk()
