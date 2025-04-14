@@ -16,7 +16,7 @@ A sleek and customizable **Typing Speed Tester** desktop application built with 
 - 💡 Tooltips and clean UI using `ttk` styling
 
 ---
-![screenshot](https://i.imgur.com/vHr6Aef.png)
+   ![screenshot](https://i.imgur.com/vHr6Aef.png)
 
 ---
 
